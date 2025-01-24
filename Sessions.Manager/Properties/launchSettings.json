@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "http": {
+        "commandName": "Project",
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "dotnetRunMessages": true,
+        "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/diag/servers",
+        "externalUrlConfiguration": true,
+        "use64Bit": true
+    },
+    "Container (Dockerfile)": {
+        "commandName": "Docker",
+        "launchBrowser": true,
+        "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/diag/servers",
+        "publishAllPorts": true
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}
