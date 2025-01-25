@@ -87,5 +87,17 @@ namespace Session.Manager.Test.E2E
             var readData = await _serviceProxy.Get(TestServer1, sessionId);
             Assert.Equal(updatedData, readData);
         }
+
+        [Fact]
+        public async Task EnsureExpiry()
+        {
+            var sessionData = _sessionManager.RandomBuffer(10);
+            var sessionId = Guid.NewGuid().ToString("n");
+            await _serviceProxy.Set(TestServer2, sessionId, sessionData,1);
+            await Task.Delay(2000);
+            var readData = await _serviceProxy.Get(TestServer3, sessionId);
+            Assert.Null(readData);
+
+        }
     }
 }

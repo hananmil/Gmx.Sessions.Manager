@@ -2,6 +2,6 @@
 {
     public interface WriteInterface
     {
-        Task UpdateSession(string sessionId, Stream streamReader);
+        Task UpdateSession(string sessionId, Stream streamReader,TimeSpan? expiry = null);
     }
 }

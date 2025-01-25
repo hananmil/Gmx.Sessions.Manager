@@ -24,7 +24,7 @@ namespace Sessions.Manager.Services
             _logger = logger;
             _redis = redis;
             _localPath = configuration.LocalPath;
-            _sessionTTL = TimeSpan.FromMinutes( configuration.SessionTimeoutMinutes);
+            _sessionTTL = TimeSpan.FromMinutes(configuration.SessionTimeoutMinutes);
             if (!Directory.Exists(_localPath))
             {
                 _logger.LogInformation($"Local directory {_localPath} missing. Creating.");
@@ -46,14 +46,14 @@ namespace Sessions.Manager.Services
             }
         }
 
-        public async Task UpdateSession(string sessionId, Stream streamReader)
+        public async Task UpdateSession(string sessionId, Stream streamReader, TimeSpan? expiry = null)
         {
             using (var fileStream = File.Create(getSessionPath(sessionId)))
             {
-                var redisTask = _redis.SetSession(sessionId);
+                var redisTask = _redis.SetSession(sessionId, expiry);
                 await streamReader.CopyToAsync(fileStream);
                 await redisTask;
-                _memCache.Set<Object>(sessionId, new object(), new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = _sessionTTL});
+                _memCache.Set<Object>(sessionId, new object(), new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiry??_sessionTTL });
             }
         }
 

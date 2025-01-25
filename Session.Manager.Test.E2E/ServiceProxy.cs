@@ -11,15 +11,19 @@ namespace Session.Manager.Test.E2E
     internal class ServiceProxy
     {
         private readonly HttpClient client = new HttpClient();
-        internal async Task Set(string server,string sessionName, byte[] data)
+        internal async Task Set(string server, string sessionName, byte[] data, int? expirySeconds = null)
         {
             var sw = Stopwatch.StartNew();
             var content = new ByteArrayContent(data);
-            var response = await client.PutAsync("http://"+server+"/session/"+sessionName, content);
+            var response = await
+                (expirySeconds.HasValue
+                    ? client.PutAsync("http://"+server+"/session/"+sessionName+"/"+expirySeconds.Value, content)
+                    : client.PutAsync("http://"+server+"/session/"+sessionName, content)
+                );
             response.EnsureSuccessStatusCode();
         }
 
-        internal async Task<byte[]> Get(string server,string sessionName)
+        internal async Task<byte[]> Get(string server, string sessionName)
         {
             var sw = Stopwatch.StartNew();
             var response = await client.GetAsync("http://"+server+"/session/"+sessionName);

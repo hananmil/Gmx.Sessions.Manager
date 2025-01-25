@@ -27,36 +27,44 @@ namespace Sessions.Manager.Controllers
         public async Task<IActionResult> GetSession(string sessionId)
         {
             Stream? ms = null;
-            if (await _redis.IsSessionRemote(sessionId))
+            var sessionRemote = await _redis.IsSessionRemote(sessionId);
+            if (!sessionRemote.HasValue)
+            {
+                _logger.LogDebug("Session {sessionId} not found.", sessionId);
+                return NotFound();
+            }
+
+            if (sessionRemote.Value)
             {
                 _logger.LogDebug("Reading remote session {sessionId}.", sessionId);
                 ms = await _removeProvider.GetSession(sessionId);
             }
-            else
+            else 
             {
                 _logger.LogDebug("Reading local session {sessionId}.", sessionId);
                 ms = await _localRepository.GetSession(sessionId);
             }
 
-            if (ms == null)
-            {
-                return NotFound();
-            }
             _logger.LogDebug("Returning session {sessionId} size {size}.", sessionId,ms.Length);
             return File(ms, "application/octet-stream");
 
         }
 
-        [HttpPut("{sessionId}")]
-        public async Task<IActionResult> UpdateSession(string sessionId)
+        [HttpPut("{sessionId}/{expirySeconds?}")]
+        public async Task<IActionResult> UpdateSession(string sessionId,int? expirySeconds)
         {
             if (!Request.Body.CanRead)
             {
                 return BadRequest();
             }
-
-            await _localRepository.UpdateSession(sessionId, Request.Body);
-
+            if (expirySeconds.HasValue)
+            {
+                await _localRepository.UpdateSession(sessionId, Request.Body, TimeSpan.FromSeconds(expirySeconds.Value));
+            }
+            else
+            {
+                await _localRepository.UpdateSession(sessionId, Request.Body);
+            }
             return Ok();
         }
     }

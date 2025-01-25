@@ -50,20 +50,31 @@ namespace Sessions.Manager.Services
                           .Select(x => (string)x.Ip).ToArray();
         }
 
-        public async Task SetSession(string sessionId)
+        public async Task SetSession(string sessionId, TimeSpan? expiry = null)
         {
-            await database.StringSetAsync(GetSessionKey(sessionId), _serverUri.Uri, _sessionExpiry);
+            _logger.LogDebug("Setting session {sessionId} on server {server} expiry {expiry}.", sessionId, _serverUri.Uri, expiry??_sessionExpiry);
+            await database.StringSetAsync(GetSessionKey(sessionId), _serverUri.Uri, expiry??_sessionExpiry);
         }
 
         public async Task<string?> GetSessionServer(string sessionId)
         {
-            return await database.StringGetAsync(GetSessionKey(sessionId));
+            var result =  await database.StringGetAsync(GetSessionKey(sessionId));
+            if (result.IsNull)
+            {
+                _logger.LogDebug("Session {sessionId} not found in redis.", sessionId);
+            }else
+            {
+                _logger.LogDebug("Session {sessionId} is on server {server}.", sessionId, result);
+            }
+            return result;
         }
 
-        public async Task<bool> IsSessionRemote(string sessionId)
+        public async Task<bool?> IsSessionRemote(string sessionId)
         {
             var serverName = await GetSessionServer(sessionId);
-            return serverName != null && serverName != _serverUri.Uri;
+            if (serverName == null)
+                return null;
+            return serverName != _serverUri.Uri;
         }
 
         public async Task RemoveSession(string sessiondId)

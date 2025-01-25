@@ -71,9 +71,10 @@ namespace Sessions.Manager
             {
                 serverIndex = (serverIndex + 1) % liveServers.Length;
                 var server = liveServers[serverIndex];
-                if (await _redis.IsSessionRemote(session))
+                var isRemote = await _redis.IsSessionRemote(session);
+                if (!isRemote.HasValue || isRemote.Value)
                 {
-                    _logger.LogDebug("Session {session} is already remote. Skipping.", session);
+                    _logger.LogDebug("Session {session} is remote or expired. Skipping.", session);
                     _repository.Delete(session);
                 }
                 else
