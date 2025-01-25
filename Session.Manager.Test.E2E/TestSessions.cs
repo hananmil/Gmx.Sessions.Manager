@@ -53,6 +53,21 @@ namespace Session.Manager.Test.E2E
         }
 
         [Fact]
+        public async Task EnsureSessionReadDiffrentServersMultipleUpdates()
+        {
+            var sessionData1 = _sessionManager.RandomBuffer(100);
+            var sessionData2 = _sessionManager.RandomBuffer(100);
+            var sessionId = Guid.NewGuid().ToString("n");
+            await _serviceProxy.Set(TestServer1, sessionId, sessionData1);
+            var readData1 = await _serviceProxy.Get(TestServer3, sessionId);
+
+            await _serviceProxy.Set(TestServer2, sessionId, sessionData2);
+            var readData2 = await _serviceProxy.Get(TestServer3, sessionId);
+            Assert.Equal(sessionData1, readData1);
+            Assert.Equal(sessionData2, readData2);
+        }
+
+        [Fact]
         public async Task EnsureSessionReadDiffrentServers100MB()
         {
             var sessionData = _sessionManager.RandomBuffer(100*1024*1024);

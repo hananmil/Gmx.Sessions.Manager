@@ -51,9 +51,28 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 
+//Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.EnableAnnotations();
+});
+
+
+
 var app = builder.Build();
+
+
 app.MapControllers();
-// Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI(opt =>
+{
+    opt.DisplayRequestDuration();
+    opt.EnableFilter();
+    opt.EnableValidator();
+    opt.EnableDeepLinking();
+});
+
 app.Run();
 
 
