@@ -63,6 +63,11 @@ namespace Sessions.Manager
 
             var liveServers = await _redis.GetServersUris();
             liveServers = liveServers.Where(s => s != _addressProvider.Uri).ToArray();
+            if (!liveServers.Any())
+            {
+                _logger.LogError("Shutdown migration failed. No live servers found.");
+                return;
+            }
             int serverIndex = 0;
 
             // Distribute sessions to other live servers on shutdown
