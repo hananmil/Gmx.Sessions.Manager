@@ -5,14 +5,14 @@ using StackExchange.Redis;
 
 namespace Sessions.Manager.Services
 {
-    public class RemoteSessionProvider : ReadInterface
+    public class RemoteSessionProxy : ReadInterface
     {
         private readonly Configuration _config;
-        private readonly ILogger<RemoteSessionProvider> _logger;
+        private readonly ILogger<RemoteSessionProxy> _logger;
         private readonly RedisProxyService _redis;
         private readonly HttpClient _httpClient;
 
-        public RemoteSessionProvider(ILogger<RemoteSessionProvider> logger, HttpClient httpClient,
+        public RemoteSessionProxy(ILogger<RemoteSessionProxy> logger, HttpClient httpClient,
             RedisProxyService redis,
             Configuration configuration
             )

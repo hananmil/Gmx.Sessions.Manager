@@ -14,14 +14,14 @@ namespace Sessions.Manager
         private readonly ILogger<ServerCleanup> _logger;
         private RedisProxyService _redis;
         private LocalSessionRepository _repository;
-        private readonly RemoteSessionProvider _remote;
-        private readonly TaskCompletionSource _taskCompletionSource = new TaskCompletionSource();
+        private readonly RemoteSessionProxy _remote;
+        private readonly CancellationTokenSource _completionSource = new CancellationTokenSource();
         public ServerCleanup(
             Configuration configuration,
             ILogger<ServerCleanup> logger,
             RedisProxyService redis,
             LocalSessionRepository repository,
-            RemoteSessionProvider remoteSessionProvider,
+            RemoteSessionProxy remoteSessionProvider,
             ServerAddressProvider addressProvider)
         {
             _config = configuration;
@@ -36,7 +36,7 @@ namespace Sessions.Manager
         {
             Task.Run(async () =>
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (!_completionSource.Token.IsCancellationRequested)
                 {
                     await Task.Delay(5000, cancellationToken);
                     // Cleanup expired sessions. We don't rmove sessions from redis, only from local storage.
@@ -44,17 +44,23 @@ namespace Sessions.Manager
                     foreach (var session in _repository.ListSessions(true))
                     {
                         _repository.Delete(session);
-                        _logger.LogInformation("Session {session} expired and was removed.", session);
+                        _logger.LogDebug("Session {session} expired and was removed.", session);
                     }
                 }
             });
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Migration of sessions to other servers on shutdown.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Stopping server. Running cleanup.");
-            _taskCompletionSource.SetCanceled();
+            await _completionSource.CancelAsync();
+
             var liveServers = await _redis.GetServersUris();
             liveServers = liveServers.Where(s => s != _addressProvider.Uri).ToArray();
             int serverIndex = 0;
@@ -67,18 +73,17 @@ namespace Sessions.Manager
                 var server = liveServers[serverIndex];
                 if (await _redis.IsSessionRemote(session))
                 {
-                    _logger.LogInformation("Session {session} is already remote. Skipping.", session);
+                    _logger.LogDebug("Session {session} is already remote. Skipping.", session);
                     _repository.Delete(session);
-
                 }
                 else
                 {
-                    using (var ms = await _repository.GetSession(session))
+                    using (var stream = await _repository.GetSession(session))
                     {
-                        _logger.LogInformation("Migrating session {session} to {server}.", session, server);
-                        if (ms != null)
+                        _logger.LogDebug("Migrating session {session} to {server}.", session, server);
+                        if (stream != null)
                         {
-                            await _remote.SetSession(server, session, ms);
+                            await _remote.SetSession(server, session, stream);
                             _repository.Delete(session);
                         }
                     }

@@ -16,7 +16,7 @@ builder.Services.AddSingleton<ServerAddressProvider>();
 builder.Services.AddSingleton(typeof(Configuration));
 builder.Services.AddSingleton(typeof(RedisProxyService));
 builder.Services.AddSingleton(typeof(LocalSessionRepository));
-builder.Services.AddSingleton(typeof(RemoteSessionProvider));
+builder.Services.AddSingleton(typeof(RemoteSessionProxy));
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
 {

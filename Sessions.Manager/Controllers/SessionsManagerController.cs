@@ -11,11 +11,11 @@ namespace Sessions.Manager.Controllers
         private readonly ILogger<SessionsManagerController> _logger;
         private readonly RedisProxyService _redis;
         private readonly LocalSessionRepository _localRepository;
-        private readonly RemoteSessionProvider _removeProvider;
+        private readonly RemoteSessionProxy _removeProvider;
 
         public SessionsManagerController(
             RedisProxyService redis,
-            ILogger<SessionsManagerController> logger, LocalSessionRepository localRepository, RemoteSessionProvider remoteSessionProvider)
+            ILogger<SessionsManagerController> logger, LocalSessionRepository localRepository, RemoteSessionProxy remoteSessionProvider)
         {
             _logger = logger;
             _redis = redis;

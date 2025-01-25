@@ -10,7 +10,7 @@ namespace Sessions.Manager
     {
         private readonly ILogger<ServerUpReporter> _logger;
         private readonly RedisProxyService _redis;
-        private readonly Services.Configuration _config;
+        private readonly Configuration _config;
         private PeriodicTimer _timer;
         private Task? _updateTask;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
