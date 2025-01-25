@@ -45,6 +45,12 @@ namespace Sessions.Manager.Controllers
                 ms = await _localRepository.GetSession(sessionId);
             }
 
+            if (ms == null)
+            {
+                _logger.LogError("Session {sessionId} not found.", sessionId);
+                return NotFound();
+            }
+
             _logger.LogDebug("Returning session {sessionId} size {size}.", sessionId,ms.Length);
             return File(ms, "application/octet-stream");
 
