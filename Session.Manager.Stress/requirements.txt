@@ -1,0 +1,5 @@
+locust
+requests
+geventhttpclient  # Optional: For better performance
+psycogreen        # Optional: For better performance on macOS
+lxml              # Optional: For parsing HTML responses

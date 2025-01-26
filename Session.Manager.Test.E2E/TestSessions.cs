@@ -125,5 +125,24 @@ namespace Session.Manager.Test.E2E
             Assert.Null(readData);
 
         }
+
+        [Fact]
+        public async Task EnsureFilesSessionSpecialCharacters1()
+        {
+            var sessionData = _sessionManager.RandomBuffer(100);
+            var sessionId = System.Web.HttpUtility.UrlEncode("/test1/test2"); 
+            await _serviceProxy.Set(TestServer1, sessionId, sessionData);
+            var readData = await _serviceProxy.Get(TestServer1, sessionId);
+            Assert.Equal(sessionData, readData);
+        }
+        [Fact]
+        public async Task EnsureFilesSessionSpecialCharacters2()
+        {
+            var sessionData = _sessionManager.RandomBuffer(100);
+            var sessionId = System.Web.HttpUtility.UrlEncode("\\test\\test\\");
+            await _serviceProxy.Set(TestServer1, sessionId, sessionData);
+            var readData = await _serviceProxy.Get(TestServer1, sessionId);
+            Assert.Equal(sessionData, readData);
+        }
     }
 }

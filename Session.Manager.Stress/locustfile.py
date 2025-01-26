@@ -17,7 +17,7 @@ class SessionUser(HttpUser):
     host = "http://127.0.0.1:5000"
     wait_time = between(1, 2)
 
-    def generate_random_data(self, min_size=1024, max_size=1024**2 * 1):
+    def generate_random_data(self, min_size=1024, max_size=1024**2 * 10):
         """Generates a random byte array of a random size."""
         size = random.randint(min_size, max_size)
         return bytearray(random.getrandbits(8) for _ in range(size))
