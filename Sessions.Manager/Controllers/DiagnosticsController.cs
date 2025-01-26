@@ -1,12 +1,14 @@
 ﻿using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Sessions.Manager.Controllers.DTO;
 using Sessions.Manager.Services;
 
 namespace Sessions.Manager.Controllers
 {
     [ApiController]
     [Route("diag")]
+    [Produces(MediaTypeNames.Application.Json)]
     public class DiagnosticsController : Controller
     {
         private RedisProxyService _redis;
@@ -17,19 +19,19 @@ namespace Sessions.Manager.Controllers
         }
 
         [HttpGet("servers")]
-        public async Task<IActionResult> Index()
+        public async Task<ServerStatus[]> Servers()
         {
             var servers = await _redis.GetServersDetails();
 
-            return this.Content(JsonSerializer.Serialize(servers, new JsonSerializerOptions { WriteIndented=true }));
+            return servers;
         }
 
         [HttpGet("sessions")]
-        public async Task<IActionResult> Sessions()
+        public async Task<Session[]> Sessions()
         {
             var sessions = await _redis.ListSessions();
 
-            return this.Content(JsonSerializer.Serialize(sessions, new JsonSerializerOptions { WriteIndented=true }));
+            return sessions.ToArray();
         }
     }
 
