@@ -5,8 +5,6 @@
     public class TestDocker : IClassFixture<DockerManager>
     {
         private readonly string TestServer1 = "127.0.0.1:5001";
-        private readonly string TestServer2 = "127.0.0.1:5002";
-        private readonly string TestServer3 = "127.0.0.1:5003";
 
         private readonly DockerManager _dockerManager;
 

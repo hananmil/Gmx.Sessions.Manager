@@ -5,13 +5,16 @@ import uuid
 import locust
 from locust import HttpUser, between, task
 
+hosts = ["http://127.0.0.1:5001",
+         "http://127.0.0.1:5002", "http://127.0.0.1:5003"]
+
 
 class SessionUser(HttpUser):
     """
     User that simulates creating and reading sessions via a binary API,
     targeting multiple hosts at random.
     """
-    host = "http://127.0.0.1:5001"
+    host = "http://127.0.0.1:5000"
     wait_time = between(1, 2)
 
     def generate_random_data(self, min_size=1024, max_size=1024**2 * 1):
@@ -27,10 +30,10 @@ class SessionUser(HttpUser):
         """
         session_id = str(uuid.uuid4())
         random_data = self.generate_random_data()
-
+        put_host = random.choice(hosts)
         # Create the session (PUT)
         with self.client.put(
-            f"/session/{session_id}",
+            f"{put_host}/session/{session_id}",
             data=random_data,
             headers={"Content-Type": "application/octet-stream"},
             catch_response=True,
@@ -45,11 +48,13 @@ class SessionUser(HttpUser):
         # Wait a bit before reading the session back
         time.sleep(random.uniform(0.5, 2.0))
         # Read the session back (GET)
+        get_host = random.choice(hosts)
+        name = "Same host" if put_host == get_host else "Different host"
         with self.client.get(
-            f"/session/{session_id}",
+            f"{get_host}/session/{session_id}",
             headers={"Accept": "application/octet-stream"},
             catch_response=True,
-            name="/session/{sessionId} (GET)"
+            name="/session/{sessionId} (GET) " + name
         ) as get_response:
             if get_response.status_code == 200:
                 if get_response.content == random_data:
