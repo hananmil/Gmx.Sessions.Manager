@@ -17,20 +17,4 @@
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<EditorConfigFiles Remove="C:\Users\Hanan\source\repos\Gmx.Sessions.Manager\Sessions.Manager\.editorconfig" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="C:\Users\Hanan\source\repos\Gmx.Sessions.Manager\Sessions.Manager\.editorconfig" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Update="appsettings.Docker.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
-	</ItemGroup>
-
 </Project>
