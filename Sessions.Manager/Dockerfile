@@ -22,5 +22,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_ENVIRONMENT=Docker 
+# Remove the following variable, we use appsettings.Docker.json instead
+ENV ASPNETCORE_HTTP_PORTS=
 
 ENTRYPOINT ["dotnet", "Sessions.Manager.dll"]
