@@ -25,6 +25,7 @@ namespace Sessions.Manager.Services
 
         public async Task<Stream?> GetSession(string sessionId)
         {
+            sessionId = WebUtility.UrlEncode(sessionId);
             var remoteServer = await _redis.GetSessionServer(sessionId);
             if (string.IsNullOrWhiteSpace(remoteServer))
             {
@@ -48,6 +49,7 @@ namespace Sessions.Manager.Services
 
         internal async Task SetSession(string server, string session, Stream ms)
         {
+            session = WebUtility.UrlEncode(session);
             using (var content = new StreamContent(ms))
             {
                 using (var response = await _httpClient.PutAsync($"http://{server}/session/{session}", content))
