@@ -17,7 +17,7 @@ class SessionUser(HttpUser):
     host = "http://127.0.0.1:5000"
     wait_time = between(1, 2)
 
-    def generate_random_data(self, min_size=1024, max_size=1024**2 * 10):
+    def generate_random_data(self, min_size=1024, max_size=1024**2):
         """Generates a random byte array of a random size."""
         size = random.randint(min_size, max_size)
         return bytearray(random.getrandbits(8) for _ in range(size))
@@ -35,7 +35,11 @@ class SessionUser(HttpUser):
         with self.client.put(
             f"{put_host}/session/{session_id}",
             data=random_data,
-            headers={"Content-Type": "application/octet-stream"},
+            headers={
+                "Content-Type": "application/octet-stream",
+                "Connection": "keep-alive",
+                "Keep-Alive": "timeout=5, max=1000"
+            },
             catch_response=True,
             name="/session/{sessionId} (PUT)"
         ) as put_response:
@@ -52,7 +56,11 @@ class SessionUser(HttpUser):
         name = "Same host" if put_host == get_host else "Different host"
         with self.client.get(
             f"{get_host}/session/{session_id}",
-            headers={"Accept": "application/octet-stream"},
+            headers={
+                "Accept": "application/octet-stream",
+                "Connection": "keep-alive",
+                "Keep-Alive": "timeout=5, max=1000"
+            },
             catch_response=True,
             name="/session/{sessionId} (GET) " + name
         ) as get_response:

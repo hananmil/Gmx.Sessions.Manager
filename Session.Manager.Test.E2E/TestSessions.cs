@@ -115,11 +115,22 @@ namespace Session.Manager.Test.E2E
         }
 
         [Fact]
-        public async Task EnsureExpiry()
+        public async Task EnsureExpirySameServer()
         {
             var sessionData = _sessionManager.RandomBuffer(10);
             var sessionId = Guid.NewGuid().ToString("n");
             await _serviceProxy.Set(TestServer2, sessionId, sessionData,1);
+            await Task.Delay(2000);
+            var readData = await _serviceProxy.Get(TestServer2, sessionId);
+            Assert.Null(readData);
+
+        }
+        [Fact]
+        public async Task EnsureExpiry()
+        {
+            var sessionData = _sessionManager.RandomBuffer(10);
+            var sessionId = Guid.NewGuid().ToString("n");
+            await _serviceProxy.Set(TestServer2, sessionId, sessionData, 1);
             await Task.Delay(2000);
             var readData = await _serviceProxy.Get(TestServer3, sessionId);
             Assert.Null(readData);
