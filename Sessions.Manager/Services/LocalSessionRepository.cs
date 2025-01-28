@@ -51,10 +51,10 @@ namespace Sessions.Manager.Services
             using (var fileStream = File.Create(getSessionPath(sessionId)))
             {
                 var redisTask = _redis.SetSession(sessionId, expiry);
+                _memCache.Set(sessionId, new object(), new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiry??_sessionTTL });
                 await streamReader.CopyToAsync(fileStream);
                 _logger.LogDebug("Writing session {sessionId} to file. Size {size}",sessionId,fileStream.Length);
                 await redisTask;
-                _memCache.Set<Object>(sessionId, new object(), new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiry??_sessionTTL });
             }
         }
 

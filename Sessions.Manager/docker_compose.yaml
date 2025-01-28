@@ -8,19 +8,29 @@
     build:
       context: ./ # Replace with your project directory
       dockerfile: Dockerfile
+    volumes:
+      - sessions1:/app/sessions
   manager2:
     image: sessions # Replace with your image name
     ports:
       - "5002:5000" # Map port 80 in the container to 8080 on the host
     depends_on:
       - redis
+    volumes:
+      - sessions2:/app/sessions
   manager3:
     image: sessions # Replace with your image name
     ports:
       - "5003:5000" # Map port 80 in the container to 8080 on the host
     depends_on:
       - redis
+    volumes:
+      - sessions3:/app/sessions
   redis:
     image: redis
     ports:
       - "6379:6379"
+volumes:
+  sessions1:
+  sessions2:
+  sessions3:

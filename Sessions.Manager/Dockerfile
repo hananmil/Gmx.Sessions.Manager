@@ -24,5 +24,7 @@ COPY --from=publish /app/publish .
 ENV ASPNETCORE_ENVIRONMENT=Docker 
 # Remove the following variable, we use appsettings.Docker.json instead
 ENV ASPNETCORE_HTTP_PORTS=
-
+RUN mkdir -p /app/sessions
+RUN chmod -R 777 /app/sessions
+VOLUME /app/sessions
 ENTRYPOINT ["dotnet", "Sessions.Manager.dll"]
